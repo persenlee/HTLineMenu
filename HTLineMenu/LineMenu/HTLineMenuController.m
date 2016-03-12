@@ -9,6 +9,7 @@
 #import "HTLineMenuController.h"
 #import "HTLineMenuItem.h"
 #import "ColorResource.h"
+#import <View+MASAdditions.h>
 @interface HTLineMenuController()
 {
     CGRect _animateFromFrame;
@@ -118,11 +119,31 @@
 //    CGFloat menuWidth = CGRectGetWidth(rect) / menuCount;
 //    CGFloat menuHeight = CGRectGetHeight(rect);
     CGFloat menuItemWith = _menuWidth / menuCount;
-    [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        obj.frame = CGRectMake(idx * menuItemWith, 0, menuItemWith, _menuHeight);
-    }];
+//    [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//        obj.frame = CGRectMake(idx * menuItemWith, 0, menuItemWith, _menuHeight);
+//    }];
     
     //using autolayout
+    __weak typeof(self) weakSelf = self;
+    [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        
+        [obj mas_makeConstraints:^(MASConstraintMaker *make) {
+            if (idx == 0) {
+                make.left.equalTo(weakSelf.view);
+            } else {
+                UIView *view = weakSelf.view.subviews[idx -1];
+                make.left.equalTo(view.mas_right);
+                make.width.equalTo(view.mas_width);
+            }
+            
+            if (idx == menuCount -1) {
+                make.right.equalTo(weakSelf.view);
+            }
+            
+            make.top.equalTo(weakSelf.view);
+            make.bottom.equalTo(weakSelf.view);
+        }];
+    }];
 }
 
 
