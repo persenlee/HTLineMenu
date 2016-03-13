@@ -13,6 +13,7 @@
 @interface HTLineMenuController : NSObject
 @property(nonatomic, strong,nonnull) NSArray <HTLineMenuItem *> *menuItems;
 @property(nonatomic, copy,nullable) void (^didTapMenuAtIndex)(NSInteger index);
+@property(nonatomic, getter=isMenuVisible) BOOL menuVisible;
 +(nullable instancetype) sharedMenuController;
 - (void)setTargetRect:(CGRect)targetRect inView:(nullable UIView *)targetView;
 - (void)setMenuVisible:(BOOL)menuVisible animated:(BOOL)animated;

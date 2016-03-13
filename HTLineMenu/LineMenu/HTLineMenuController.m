@@ -10,18 +10,22 @@
 #import "HTLineMenuItem.h"
 #import "ColorResource.h"
 #import <View+MASAdditions.h>
+
+
 @interface HTLineMenuController()
 {
     CGRect _animateFromFrame;
     CGRect _animateToFrame;
     CGFloat _menuHeight;
     CGFloat _menuWidth;
+    UIView *_prevTargetView;
+    CGRect _prevTargetRect;
 }
 @property(nonatomic,strong)UIView *view;
 @end
 
 @implementation HTLineMenuController
-
+@synthesize menuVisible = _menuVisible;
 - (instancetype)init
 {
     self = [super init];
@@ -38,6 +42,8 @@
     _view.layer.cornerRadius = 5.f;
     _menuHeight = 40.f;
     _menuWidth = 240;
+    _prevTargetView = nil;
+    _prevTargetRect = CGRectZero;
 }
 
 +(instancetype) sharedMenuController
@@ -58,6 +64,12 @@
 
 - (void)setTargetRect:(CGRect)targetRect inView:(UIView *)targetView
 {
+    if (CGRectEqualToRect(_prevTargetRect, targetRect) && targetView == _prevTargetView) {
+        return;
+    }
+    _prevTargetView = targetView;
+    _prevTargetRect = targetRect;
+    
     CGPoint targetLeftCenter = targetRect.origin;
     targetLeftCenter.y += floor(CGRectGetHeight(targetRect) / 2);
     CGPoint targetRightCenter = targetLeftCenter;
@@ -69,8 +81,8 @@
         _animateFromFrame = CGRectMake(targetLeftCenter.x, targetLeftCenter.y - _menuHeight / 2, 0, _menuHeight);
         _animateToFrame = CGRectMake(targetLeftCenter.x - _menuWidth, targetLeftCenter.y - _menuHeight / 2, _menuWidth, _menuHeight);
     } else if (CGRectContainsRect(containerFrame, CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, _menuWidth, _menuHeight))) {
-        _animateFromFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, _menuWidth, _menuHeight);
-        _animateToFrame = CGRectMake(targetRightCenter.x, 0, _menuWidth, _menuHeight);
+        _animateFromFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, 0, _menuHeight);
+        _animateToFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, _menuWidth, _menuHeight);
     }
     self.view.frame = _animateFromFrame;
     [self.view removeFromSuperview];
@@ -81,26 +93,43 @@
 
 - (void)setMenuVisible:(BOOL)menuVisible animated:(BOOL)animated
 {
+    _menuVisible = menuVisible;
     if (menuVisible) {
         if (animated) {
-            [UIView animateWithDuration:0.3 animations:^{
+            [UIView animateWithDuration:0.25 delay:0 options:UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionCurveEaseInOut
+                            animations:^{
                 self.view.frame = _animateToFrame;
-            }];
+            } completion:nil];
         } else {
             self.view.frame = _animateToFrame;
         }
     } else {
         if (animated) {
-            [UIView animateWithDuration:0.3 animations:^{
+            [UIView animateWithDuration:0.25 animations:^{
                 self.view.frame = _animateFromFrame;
             } completion:^(BOOL finished) {
                 [self.view removeFromSuperview];
+                _prevTargetRect = CGRectZero;
+                _prevTargetView = nil;
             }];
         } else {
             [self.view removeFromSuperview];
+            _prevTargetRect = CGRectZero;
+            _prevTargetView = nil;
         }
     }
     
+}
+
+
+- (void)setMenuVisible:(BOOL)menuVisible
+{
+    [self setMenuVisible:menuVisible animated:NO];
+}
+
+- (BOOL)isMenuVisible
+{
+    return _menuVisible;
 }
 
 -(void) setupSubviews
@@ -114,15 +143,9 @@
 
 - (void)layoutSubviews
 {
-    CGRect rect = self.view.bounds;
     NSInteger menuCount = self.menuItems.count;
 //    CGFloat menuWidth = CGRectGetWidth(rect) / menuCount;
 //    CGFloat menuHeight = CGRectGetHeight(rect);
-    CGFloat menuItemWith = _menuWidth / menuCount;
-//    [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//        obj.frame = CGRectMake(idx * menuItemWith, 0, menuItemWith, _menuHeight);
-//    }];
-    
     //using autolayout
     __weak typeof(self) weakSelf = self;
     [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -152,7 +175,7 @@
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
     [button setTitle:[menuItem valueForKey:@"title"] forState:UIControlStateNormal];
     [button setImage:[menuItem valueForKey:@"image"] forState:UIControlStateNormal];
-    [button setImage:[menuItem valueForKey:@"selectedImage"] forState:UIControlStateNormal];
+    [button setImage:[menuItem valueForKey:@"selectedImage"] forState:UIControlStateSelected];
     [button addTarget:self action:@selector(tapMenu:) forControlEvents:UIControlEventTouchUpInside];
     [button setTitleColor:color33ccff forState:UIControlStateNormal];
     [button.titleLabel setFont:[UIFont systemFontOfSize:11]];

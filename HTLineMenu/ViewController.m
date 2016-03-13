@@ -14,6 +14,7 @@
     HTLineMenuController *menuController;
     BOOL selected;
 }
+@property (weak, nonatomic) IBOutlet UIButton *btin;
 @end
 
 @implementation ViewController
@@ -26,7 +27,9 @@
     HTLineMenuItem *item2 = [[HTLineMenuItem alloc] initWithTitle:@"活动推送" image:[UIImage imageNamed:@"tuisong"] selectedImage:nil];
      HTLineMenuItem *item3 = [[HTLineMenuItem alloc] initWithTitle:@"分享" image:[UIImage imageNamed:@"share"] selectedImage:nil];
     menuController.menuItems = @[item1,item2,item3];
-    selected = NO;
+    menuController.didTapMenuAtIndex = ^(NSInteger index){
+        selected = !selected;
+    };
     
 }
 
@@ -41,10 +44,4 @@
     [menuController setTargetRect:btn.frame inView:self.view];
     [menuController setMenuVisible:selected animated:YES];
 }
-
-
-//- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
-//{
-//    return YES;
-//}
 @end

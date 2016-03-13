@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="14F1605" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="14F1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
@@ -17,8 +17,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kKE-6F-SGK">
-                                <rect key="frame" x="471" y="289" width="99" height="22"/>
+                            <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kKE-6F-SGK">
+                                <rect key="frame" x="480" y="283" width="80" height="34"/>
                                 <state key="normal" title="Touch Me">
                                     <color key="titleColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
@@ -26,11 +26,20 @@
                                     <action selector="tapAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="NF1-C9-ArF"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UZJ-3F-rN0">
+                                <rect key="frame" x="30" y="335" width="68" height="30"/>
+                                <state key="normal" title="Touch Me"/>
+                                <connections>
+                                    <action selector="tapAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uLE-Cr-E5p"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="kKE-6F-SGK" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="4Od-QL-kpP"/>
                             <constraint firstItem="kKE-6F-SGK" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="4d6-jY-rL2"/>
+                            <constraint firstItem="UZJ-3F-rN0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="30" id="SXb-yy-MUf"/>
+                            <constraint firstItem="UZJ-3F-rN0" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="50" id="cCq-DO-y4M"/>
                             <constraint firstAttribute="trailing" secondItem="kKE-6F-SGK" secondAttribute="trailing" constant="40" id="s4c-4y-p6s"/>
                         </constraints>
                         <variation key="default">
@@ -39,6 +48,9 @@
                             </mask>
                         </variation>
                     </view>
+                    <connections>
+                        <outlet property="btin" destination="kKE-6F-SGK" id="Hd7-YG-jEX"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
