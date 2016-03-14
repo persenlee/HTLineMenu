@@ -87,7 +87,6 @@
     self.view.frame = _animateFromFrame;
     [self.view removeFromSuperview];
     [targetView addSubview:self.view];
-    [self layoutSubviews];
 }
 
 
@@ -134,11 +133,15 @@
 
 -(void) setupSubviews
 {
+    [self.view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [obj removeFromSuperview];
+    }];
     [self.menuItems enumerateObjectsUsingBlock:^(HTLineMenuItem * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         UIButton *button = [self viewWithMenuItem:obj];
         button.tag = idx;
         [self.view addSubview:button];
     }];
+    [self layoutSubviews];
 }
 
 - (void)layoutSubviews
