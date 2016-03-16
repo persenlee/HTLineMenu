@@ -18,3 +18,8 @@
 - (void)setTargetRect:(CGRect)targetRect inView:(nullable UIView *)targetView;
 - (void)setMenuVisible:(BOOL)menuVisible animated:(BOOL)animated;
 @end
+
+
+@interface ContainerWindow : UIWindow
+@property(nonatomic,copy,nullable) void (^tapBeyondSubviewsBlock)();
+@end

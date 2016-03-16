@@ -5,7 +5,6 @@
 //  Created by duomai on 16/3/11.
 //  Copyright © 2016年 duomai. All rights reserved.
 //
-
 #import "HTLineMenuController.h"
 #import "HTLineMenuItem.h"
 #import "ColorResource.h"
@@ -22,6 +21,9 @@
     CGRect _prevTargetRect;
 }
 @property(nonatomic,strong)UIView *view;
+@property(nonnull,strong) UIWindow *mainWindow;
+@property(nonatomic,strong)ContainerWindow *window;
+@property(nonatomic,assign)BOOL animate;
 @end
 
 @implementation HTLineMenuController
@@ -38,12 +40,21 @@
 - (void)initlization
 {
     _view = [UIView  new];
+    _window = [[ContainerWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     _view.backgroundColor = color003366;
     _view.layer.cornerRadius = 5.f;
     _menuHeight = 40.f;
     _menuWidth = 240;
     _prevTargetView = nil;
     _prevTargetRect = CGRectZero;
+    _animate = NO;
+    UIApplication *appliction = [UIApplication sharedApplication];
+    _mainWindow = appliction.keyWindow;
+    [_window addSubview:self.view];
+    __weak typeof(self) weakSelf = self;
+    _window.tapBeyondSubviewsBlock = ^(){
+        [weakSelf setMenuVisible:NO animated:weakSelf.animate];
+    };
 }
 
 +(instancetype) sharedMenuController
@@ -84,15 +95,18 @@
         _animateFromFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, 0, _menuHeight);
         _animateToFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, _menuWidth, _menuHeight);
     }
+    _animateFromFrame = [self.window convertRect:_animateFromFrame fromWindow:_mainWindow];
+    _animateToFrame = [self.window convertRect:_animateToFrame fromWindow:_mainWindow];
     self.view.frame = _animateFromFrame;
-    [self.view removeFromSuperview];
-    [targetView addSubview:self.view];
+    
+    [self.window makeKeyAndVisible];
 }
 
 
 - (void)setMenuVisible:(BOOL)menuVisible animated:(BOOL)animated
 {
     _menuVisible = menuVisible;
+    _animate = animated;
     if (menuVisible) {
         if (animated) {
             [UIView animateWithDuration:0.25 delay:0 options:UIViewAnimationOptionLayoutSubviews | UIViewAnimationOptionCurveEaseInOut
@@ -107,19 +121,24 @@
             [UIView animateWithDuration:0.25 animations:^{
                 self.view.frame = _animateFromFrame;
             } completion:^(BOOL finished) {
-                [self.view removeFromSuperview];
-                _prevTargetRect = CGRectZero;
-                _prevTargetView = nil;
+                [self resignAfterInvisible];
             }];
         } else {
-            [self.view removeFromSuperview];
-            _prevTargetRect = CGRectZero;
-            _prevTargetView = nil;
+            self.view.frame = _animateFromFrame;
+            [self resignAfterInvisible];
         }
     }
     
 }
 
+- (void)resignAfterInvisible
+{
+    [self.window resignKeyWindow];
+    [_mainWindow makeKeyAndVisible];
+    _prevTargetRect = CGRectZero;
+    _prevTargetView = nil;
+    _animate = NO;
+}
 
 - (void)setMenuVisible:(BOOL)menuVisible
 {
@@ -194,3 +213,27 @@
     [self setMenuVisible:NO animated:YES];
 }
 @end
+
+
+@implementation ContainerWindow
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    __block UIView *viewHitted = nil;
+    [self.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        viewHitted = [obj hitTest:point withEvent:event];
+        if (viewHitted) {
+            *stop = YES;
+        }
+    }];
+    if (!viewHitted) {
+        [[UIApplication sharedApplication].keyWindow sendEvent:event];
+        if (self.tapBeyondSubviewsBlock) {
+            self.tapBeyondSubviewsBlock();
+        }
+    }
+    return viewHitted;
+}
+
+@end
+
