@@ -40,8 +40,7 @@
 - (IBAction)tapAction:(id)sender {
     
     UIButton *btn = (UIButton *)sender;
-    selected = !selected;
     [menuController setTargetRect:btn.frame inView:self.view];
-    [menuController setMenuVisible:selected animated:YES];
+    [menuController setMenuVisible: !menuController.isMenuVisible animated:YES];
 }
 @end
