@@ -53,7 +53,8 @@
     [_window addSubview:self.view];
     __weak typeof(self) weakSelf = self;
     _window.tapBeyondSubviewsBlock = ^(){
-        [weakSelf setMenuVisible:NO animated:weakSelf.animate];
+        //animated=YES 存在动画冲突
+        [weakSelf setMenuVisible:NO animated:/*weakSelf.animate*/NO];
     };
 }
 
@@ -86,7 +87,7 @@
     CGPoint targetRightCenter = targetLeftCenter;
     targetRightCenter.x += CGRectGetWidth(targetRect);
     
-    CGRect containerFrame = targetView.frame;
+    CGRect containerFrame = targetView.bounds;
     
     if (CGRectContainsRect(containerFrame, CGRectMake(targetLeftCenter.x - _menuWidth, targetLeftCenter.y - _menuHeight / 2, _menuWidth, _menuHeight))) { //向左边弹出
         _animateFromFrame = CGRectMake(targetLeftCenter.x, targetLeftCenter.y - _menuHeight / 2, 0, _menuHeight);
@@ -95,7 +96,9 @@
         _animateFromFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, 0, _menuHeight);
         _animateToFrame = CGRectMake(targetRightCenter.x, targetRightCenter.y - _menuHeight / 2, _menuWidth, _menuHeight);
     }
+    _animateFromFrame = [targetView convertRect:_animateFromFrame toView:_mainWindow];
     _animateFromFrame = [self.window convertRect:_animateFromFrame fromWindow:_mainWindow];
+    _animateToFrame = [targetView convertRect:_animateToFrame toView:_mainWindow];
     _animateToFrame = [self.window convertRect:_animateToFrame fromWindow:_mainWindow];
     self.view.frame = _animateFromFrame;
     
@@ -220,17 +223,30 @@
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
     __block UIView *viewHitted = nil;
+    __weak typeof(self) weakSelf = self;
     [self.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        viewHitted = [obj hitTest:point withEvent:event];
+        [obj.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj1, NSUInteger idx1, BOOL * _Nonnull stop1) {
+            CGRect frame = [obj1 convertRect:obj1.bounds toView:weakSelf];
+            if (CGRectContainsPoint(frame, point)) {
+                viewHitted = obj1;
+                *stop1 = YES;
+            }
+            
+        }];
         if (viewHitted) {
             *stop = YES;
         }
+        if (!viewHitted && CGRectContainsPoint(obj.frame, point)) {
+            viewHitted = obj;
+            *stop = YES;
+        }
+        
     }];
     if (!viewHitted) {
-        [[UIApplication sharedApplication].keyWindow sendEvent:event];
         if (self.tapBeyondSubviewsBlock) {
             self.tapBeyondSubviewsBlock();
         }
+        [[UIApplication sharedApplication].keyWindow sendEvent:event];
     }
     return viewHitted;
 }
