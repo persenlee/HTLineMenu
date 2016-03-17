@@ -28,7 +28,7 @@
      HTLineMenuItem *item3 = [[HTLineMenuItem alloc] initWithTitle:@"分享" image:[UIImage imageNamed:@"share"] selectedImage:nil];
     menuController.menuItems = @[item1,item2,item3];
     menuController.didTapMenuAtIndex = ^(NSInteger index){
-        selected = !selected;
+        NSLog(@"click at index : %li",(long)index);
     };
     
 }
